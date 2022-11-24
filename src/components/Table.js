@@ -1,25 +1,34 @@
-import React from 'react';
+import { Fragment } from 'react';
+//Fragment allows us to place a simple component to allow us to place
+//key props etc.
 
-function Table({ data }) {
-  const renderedRows = data.map((fruit) => {
-    return (
-      <tr className="border-b" key={fruit.name}>
-        <td className="p-3">{fruit.name}</td>
-        <td className="p-3">
-          <div className={`p-3 m-2 ${fruit.color}`}></div>
+function Table({ data, config, keyFn }) {
+  const renderedHeaders = config.map((column) => {
+    //check to see if header element provided and either render it or render the label
+    if (column.header) {
+      return <Fragment key={column.label}>{column.header()}</Fragment>;
+    }
+    return <th key={column.label}>{column.label}</th>;
+  });
+
+  const renderedRows = data.map((rowData) => {
+    const renderedCells = config.map((column) => {
+      return (
+        <td className="p-2" key={column.label}>
+          {column.render(rowData)}
         </td>
-        <td className="p-3">{fruit.score}</td>
+      );
+    });
+    return (
+      <tr className="border-b" key={keyFn(rowData)}>
+        {renderedCells}
       </tr>
     );
   });
   return (
     <table className="table-auto border-spacing-2">
       <thead>
-        <tr className="border-b-2">
-          <th>Fruit</th>
-          <th>Color</th>
-          <th>Score</th>
-        </tr>
+        <tr className="border-b-2">{renderedHeaders}</tr>
       </thead>
       <tbody>{renderedRows}</tbody>
     </table>
